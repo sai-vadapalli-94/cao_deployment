@@ -1,31 +1,34 @@
 Vagrant.configure("2") do |config|
-
-  config.vm.boot_timeout = 1200
-  
-  # Define the VM provider (e.g., VirtualBox)
-  config.vm.provider :virtualbox do |v|
-    v.memory = 4096
-    v.cpus = 2
+  # gru is master node, despicable me reference :) 
+  # minions are worker nodes
+  # Provision the gru node
+  config.vm.define "gru" do |gru|
+    gru.vm.box = "bento/ubuntu-22.04"
+      gru.vm.hostname = "gru"
+      gru.vm.network "private_network", ip: "172.16.8.10"
+      gru.vm.provider "virtualbox" do |vb|
+        vb.cpus = 2
+        vb.memory = 6096
+    end
+    gru.vm.boot_timeout = 1200
+    gru.vm.provision "shell", path: "scripts/common.sh", privileged: true
+    gru.vm.provision "shell", path: "scripts/configure_master.sh", privileged: true
   end
 
-  # Provision the master node
-  config.vm.define "master" do |master|
-    master.vm.box = "ubuntu/jammy64"
-    master.vm.hostname = "master"
-    master.vm.network "private_network", ip: "172.16.8.10", auto_config: false
-    master.vm.provision "shell", path: "scripts/install-kubernetes-dependencies.sh"
-    master.vm.provision "shell", path: "scripts/configure-master-node.sh"
-  end
-
-  # Provision the worker nodes
+  # Provision the minion nodes
   (1..2).each do |i|
-    config.vm.define "minion#{i}" do |worker|
-      worker.vm.box = "ubuntu/jammy64"
-      worker.vm.hostname = "minion#{i}"
-      worker.vm.network "private_network", ip: "172.16.8.#{i + 10}", auto_config: false
-      worker.vm.network "forwarded_port", guest: 8091, host: 8080 + i
-      worker.vm.provision "shell", path: "scripts/install-kubernetes-dependencies.sh"
-      worker.vm.provision "shell", path: "scripts/configure-worker-nodes.sh"
+    config.vm.define "minion#{i}" do |minion|
+      minion.vm.box = "bento/ubuntu-22.04"
+        minion.vm.hostname = "minion#{i}"
+        minion.vm.network "private_network", ip: "172.16.8.#{10+i}"
+        minion.vm.network "forwarded_port", guest: 8091, host: 8080 + i
+        minion.vm.provider "virtualbox" do |vb|
+          vb.cpus = 2
+          vb.memory = 8092
+      end
+      minion.vm.boot_timeout = 1200
+      minion.vm.provision "shell", path: "scripts/common.sh", privileged: true
+      minion.vm.provision "shell", path: "scripts/worker.sh", privileged: true
    end
   end
 end

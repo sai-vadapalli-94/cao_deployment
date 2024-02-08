@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
-master_node=172.16.8.10
+gru_node=172.16.8.10
 pod_network_cidr=192.168.0.0/16
 
 initialize_master_node ()
 {
     sudo systemctl enable kubelet
     sudo kubeadm config images pull --cri-socket /run/cri-dockerd.sock 
-    sudo kubeadm init --cri-socket /run/cri-dockerd.sock --apiserver-advertise-address=$master_node --pod-network-cidr=$pod_network_cidr --ignore-preflight-errors=NumCPU
+    sudo kubeadm init --cri-socket /run/cri-dockerd.sock --apiserver-advertise-address=$gru_node --pod-network-cidr=$pod_network_cidr --ignore-preflight-errors=NumCPU
 }
 
 create_join_command ()
@@ -32,6 +32,7 @@ configure_kubectl ()
 install_network_cni ()
 {
     kubectl apply -f /vagrant/kubernetes/kube-flannel.yml
+    
 }
 
 initialize_master_node

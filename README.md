@@ -18,5 +18,24 @@ After creation of VMs is complete ssh into master and check kubernetes cluster s
 
 `vagrant ssh master`
 
-`kubectl get nodes`
+To check the nodes use: 
 
+```
+kubectl get nodes
+```
+
+To check the k8s pods: 
+```
+kubectl get pods -n kube-system
+```
+
+# deploy cao on newly built k8s cluster
+
+```
+vagrant ssh -c /vagrant/cao_deploy.sh master
+```
+
+# install latest version of vbbox guest edition
+```
+vagrant plugin install vagrant-vbguest
+```

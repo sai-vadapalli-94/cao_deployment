@@ -1,21 +1,41 @@
 #!/bin/bash -e
 
+down_firewall()
+{
+  sudo systemctl stop ufw.service
+  sudo ufw disable
+}
+
+set_custom_dns() {
+  if [ ! -d /etc/systemd/resolved.conf.d ]; then
+    sudo mkdir /etc/systemd/resolved.conf.d/
+  fi
+  cat <<EOF | sudo tee /etc/systemd/resolved.conf.d/dns_servers.conf
+[Resolve]
+DNS=8.8.8.8 1.1.1.1
+EOF
+  sudo systemctl restart systemd-resolved
+}
 
 install_required_packages ()
 {
+
+
 sudo apt update
-sudo apt -y install curl apt-transport-https
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+sudo mkdir -p -m 755 /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor --always-trust -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 sudo apt update
-sudo apt -y install vim jq git curl tmux wget kubelet=1.24.12-00 kubeadm=1.24.12-00 kubectl=1.24.12-00
+sudo apt install -y vim curl wget jq git kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
+
 }
 
 configure_hosts_file ()
 {
 sudo tee /etc/hosts<<EOF
-172.16.8.10 master
+172.16.8.10 gru
 172.16.8.11 minion1
 172.16.8.12 minion2
 EOF
@@ -86,7 +106,8 @@ sudo systemctl enable --now cri-docker.socket
 cri-dockerd --version
 }
 
-
+down_firewall
+set_custom_dns
 install_required_packages
 configure_hosts_file
 disable_swap
