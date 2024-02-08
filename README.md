@@ -8,11 +8,11 @@ To create VMs with vagrant, you need to install:
 - Vagrant 
 - Virtualbox 
 
-# download  the box so it's much faster
+# Download  the box so it's much faster
 
 vagrant box add bento/ubuntu-22.04
 
-# install latest version of vbbox guest edition
+# Install latest version of vbbox guest edition
 ```
 vagrant plugin install vagrant-vbguest
 ```
