@@ -1,3 +1,4 @@
 .vagrant
 couchbase-autonomous-operator_2.6.0-kubernetes-linux-amd64.tar.gz
-couchbase-autonomous-operator_2.6.0-kubernetes-linux-amd64/
+couchbase-autonomous-operator_2.6.0-kubernetes-linux-amd64
+couchbase-autonomous-operator_2.6.0-kubernetes-linux-amd64.tar.gz
