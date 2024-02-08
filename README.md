@@ -1,4 +1,4 @@
-# vagrant-kubernetes-cluster
+# Vagrant K8s Cluster + Cao Deployment
 
 Kubernetes cluster automation via Vagrant
 
